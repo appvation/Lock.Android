@@ -50,6 +50,7 @@ import java.util.Map;
 
 public class Lock {
 
+    private static final String TAG = Lock.class.getSimpleName();
     private final AuthenticationCallback callback;
     private final Options options;
 
@@ -74,8 +75,10 @@ public class Lock {
             // Get extra data included in the Intent
             String action = data.getAction();
             if (action.equals(Lock.AUTHENTICATION_ACTION)) {
+                Log.d(TAG, "AUTHENTICATION action received in our BroadcastReceiver");
                 processEvent(data);
             } else if (action.equals(Lock.CANCELED_ACTION)) {
+                Log.d(TAG, "CANCELED action received in our BroadcastReceiver");
                 callback.onCanceled();
             }
         }
@@ -104,6 +107,7 @@ public class Lock {
      */
     @SuppressWarnings("unused")
     public static Builder newBuilder(@NonNull Auth0 account, @NonNull AuthenticationCallback callback) {
+        Log.v(TAG, "Creating new Lock.Builder");
         return new Lock.Builder(account, callback);
     }
 
@@ -115,6 +119,7 @@ public class Lock {
      */
     @SuppressWarnings("unused")
     public Intent newIntent(Activity activity) {
+        Log.v(TAG, "Building a new intent to start the LockActivity");
         Intent lockIntent = new Intent(activity, LockActivity.class);
         lockIntent.putExtra(OPTIONS_EXTRA, options);
         return lockIntent;
@@ -128,6 +133,7 @@ public class Lock {
      */
     @SuppressWarnings("unused")
     public void onCreate(Activity activity) {
+        Log.v(TAG, "OnCreate called");
         IntentFilter filter = new IntentFilter();
         filter.addAction(Lock.AUTHENTICATION_ACTION);
         filter.addAction(Lock.CANCELED_ACTION);
@@ -142,7 +148,7 @@ public class Lock {
      */
     @SuppressWarnings("unused")
     public void onDestroy(Activity activity) {
-        // unregister listener (if something was registered)
+        Log.v(TAG, "OnDestroy called");
         LocalBroadcastManager.getInstance(activity).unregisterReceiver(this.receiver);
     }
 
@@ -156,6 +162,7 @@ public class Lock {
      */
     @SuppressWarnings("unused")
     public void onActivityResult(Activity activity, int resultCode, @NonNull Intent data) {
+        Log.v(TAG, "OnActivityResult called");
         if (resultCode == Activity.RESULT_OK) {
             processEvent(data);
             return;
@@ -171,6 +178,7 @@ public class Lock {
      * @param eventData the intent received at the end of the login process.
      */
     private void processEvent(Intent eventData) {
+        Log.v(TAG, "Trying to parse authentication data from " + eventData.toString());
         String idToken = eventData.getStringExtra(Lock.ID_TOKEN_EXTRA);
         String accessToken = eventData.getStringExtra(Lock.ACCESS_TOKEN_EXTRA);
         String tokenType = eventData.getStringExtra(Lock.TOKEN_TYPE_EXTRA);
@@ -226,6 +234,7 @@ public class Lock {
                 Log.e(TAG, "You need to specify the AuthenticationCallback object to receive the Authentication result.");
                 throw new IllegalStateException("Missing AuthenticationCallback.");
             }
+            Log.v(TAG, "Lock instance created");
             return new Lock(options, callback);
         }
 

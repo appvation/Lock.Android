@@ -32,6 +32,7 @@ import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,6 +45,7 @@ import com.auth0.android.lock.R;
 
 public class ValidatedInputView extends LinearLayout implements View.OnFocusChangeListener {
 
+    private static final String TAG = ValidatedInputView.class.getSimpleName();
     private static final int MIN_PASSWORD_LENGTH = 6;
     private static final int MIN_USERNAME_LENGTH = 6;
     private static final int MIN_PHONE_NUMBER_LENGTH = 10;
@@ -98,6 +100,7 @@ public class ValidatedInputView extends LinearLayout implements View.OnFocusChan
     private void setupInputValidation() {
         String hint = "";
         input.setTransformationMethod(null);
+        Log.v(TAG, "Setting up validation for field of type " + dataType);
         switch (dataType) {
             case EMAIL:
                 input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
@@ -143,7 +146,7 @@ public class ValidatedInputView extends LinearLayout implements View.OnFocusChan
         int strokeColor = showError ? R.color.com_auth0_lock_input_field_border_error : R.color.com_auth0_lock_input_field_border_normal;
         gd.setStroke((int) getResources().getDimension(R.dimen.com_auth0_lock_input_field_stroke_width), ViewUtils.obtainColor(getContext(), strokeColor));
         gd.setColor(ViewUtils.obtainColor(getContext(), R.color.com_auth0_lock_input_field_border_normal));
-        parent.setBackgroundDrawable(gd);
+        ViewUtils.setBackground(parent, gd);
     }
 
     /**
@@ -152,6 +155,7 @@ public class ValidatedInputView extends LinearLayout implements View.OnFocusChan
      * @param type a valid DataType
      */
     public void setDataType(DataType type) {
+        Log.v(TAG, "Validation data type updated to " + type);
         dataType = type;
         setupInputValidation();
     }
@@ -194,6 +198,7 @@ public class ValidatedInputView extends LinearLayout implements View.OnFocusChan
         }
 
         updateBorder(!isValid);
+        Log.v(TAG, "Field validation results: Is valid? " + isValid);
         return isValid;
     }
 
@@ -220,6 +225,7 @@ public class ValidatedInputView extends LinearLayout implements View.OnFocusChan
      * Removes any text present on the input field and clears any validation error, if present.
      */
     public void clearInput() {
+        Log.v(TAG, "Input cleared and validation errors removed");
         input.setText("");
         updateBorder(false);
     }
@@ -227,6 +233,7 @@ public class ValidatedInputView extends LinearLayout implements View.OnFocusChan
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
         if (!hasFocus) {
+            Log.v(TAG, "Field validation running because of focus change");
             validate(false);
         }
     }

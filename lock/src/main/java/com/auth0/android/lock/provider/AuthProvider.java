@@ -69,8 +69,10 @@ public abstract class AuthProvider {
      */
     public void start(Activity activity, String connectionName, int requestCode) {
         if (checkPermissions(activity)) {
+            Log.v(TAG, "All permissions were already granted, the authentication flow is starting.");
             requestAuth(activity, connectionName);
         } else {
+            Log.d(TAG, "Some permissions were not previously granted, requesting them now.");
             lastConnectionName = connectionName;
             requestPermissions(activity, requestCode);
         }
@@ -90,13 +92,15 @@ public abstract class AuthProvider {
      * Stops the authentication process (even if it's in progress).
      */
     @SuppressWarnings("unused")
-    public void stop() {}
+    public void stop() {
+    }
 
     /**
      * Removes any session information stored in the object.
      */
     @SuppressWarnings("unused")
-    public void clearSession() {}
+    public void clearSession() {
+    }
 
     /**
      * Finishes the auth flow by parsing the AuthorizeResult. The authentication result
@@ -154,9 +158,11 @@ public abstract class AuthProvider {
      */
     @SuppressWarnings("unused")
     public void onRequestPermissionsResult(Activity activity, int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        Log.v(TAG, "Results arrived for request code " + requestCode);
         List<String> declinedPermissions = handler.parseRequestResult(requestCode, permissions, grantResults);
 
         if (declinedPermissions.isEmpty()) {
+            Log.v(TAG, "All permissions were granted!");
             requestAuth(activity, lastConnectionName);
         } else if (callback != null) {
             String message = String.format(activity.getString(R.string.com_auth0_lock_permission_missing_description), declinedPermissions);
