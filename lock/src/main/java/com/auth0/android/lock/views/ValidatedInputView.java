@@ -52,7 +52,7 @@ public class ValidatedInputView extends LinearLayout implements View.OnFocusChan
     private ImageView icon;
     private int inputIcon;
 
-    enum DataType {USERNAME, EMAIL, USERNAME_OR_EMAIL, NUMBER, PHONE_NUMBER, PASSWORD}
+    public enum DataType {USERNAME, EMAIL, USERNAME_OR_EMAIL, NUMBER, PHONE_NUMBER, PASSWORD, NAME}
 
     private DataType dataType;
 
@@ -128,6 +128,11 @@ public class ValidatedInputView extends LinearLayout implements View.OnFocusChan
             case PHONE_NUMBER:
                 input.setInputType(InputType.TYPE_CLASS_NUMBER);
                 inputIcon = R.drawable.com_auth0_lock_ic_mobile;
+                hint = getResources().getString(R.string.com_auth0_lock_hint_phone_number);
+                break;
+            case NAME:
+                input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+                inputIcon = R.drawable.com_auth0_lock_ic_username;
                 hint = getResources().getString(R.string.com_auth0_lock_hint_phone_number);
                 break;
         }
@@ -214,6 +219,15 @@ public class ValidatedInputView extends LinearLayout implements View.OnFocusChan
     public void setText(String text) {
         input.setText("");
         input.append(text);
+    }
+
+    /**
+     * Updates the input field hint.
+     *
+     * @param hint the new hint to set.
+     */
+    public void setHint(String hint) {
+        input.setHint(hint);
     }
 
     /**
