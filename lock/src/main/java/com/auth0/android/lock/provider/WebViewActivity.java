@@ -47,12 +47,15 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.auth0.android.lock.R;
+import com.auth0.android.lock.utils.ActivityUIHelper;
 
 public class WebViewActivity extends AppCompatActivity {
 
     private static final String TAG = WebViewActivity.class.getSimpleName();
     private static final String KEY_REDIRECT_URI = "redirect_uri";
+
     public static final String CONNECTION_NAME_EXTRA = "serviceName";
+    public static final String FULLSCREEN_EXTRA = "fullscreen";
 
     private WebView webView;
     private ProgressBar progressBar;
@@ -62,6 +65,10 @@ public class WebViewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getIntent().getBooleanExtra(FULLSCREEN_EXTRA, false)) {
+            ActivityUIHelper.setFullscreenMode(this);
+        }
+
         setContentView(R.layout.com_auth0_lock_activity_web_view);
         final ActionBar bar = getSupportActionBar();
         if (bar != null) {
@@ -91,6 +98,14 @@ public class WebViewActivity extends AppCompatActivity {
         });
 
         startUrlLoading();
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (getIntent().getBooleanExtra(FULLSCREEN_EXTRA, false)) {
+            ActivityUIHelper.setFullscreenMode(this);
+        }
     }
 
     private void startUrlLoading() {
