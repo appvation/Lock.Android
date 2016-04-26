@@ -148,7 +148,7 @@ public class WebIdentityProvider implements IdentityProvider {
             }
             return;
         }
-        startAuthorization(activity, buildAuthorizeUri(authorizeUrl, serviceName, parameters), serviceName);
+        startAuthorization(activity, buildAuthorizeUri(authorizeUrl, serviceName, parameters, null), serviceName);
     }
 
     @Override
@@ -168,8 +168,20 @@ public class WebIdentityProvider implements IdentityProvider {
         }
 
         final String serviceName = request.getServiceName();
-        final Uri url = buildAuthorizeUri(authorizeUrl, serviceName, builder.asDictionary());
+        final Uri url = buildAuthorizeUri(authorizeUrl, serviceName, builder.asDictionary(), null);
         startAuthorization(activity, url, serviceName);
+    }
+
+    public void start(Activity activity, String serviceName, String scope) {
+        if (authorizeUrl == null) {
+            if (callback != null) {
+                callback.onFailure(R.string.com_auth0_social_error_title, R.string.com_auth0_social_invalid_authorize_url, null);
+            } else {
+                Log.w(TAG, "No callback set for web IdP authenticator");
+            }
+            return;
+        }
+        startAuthorization(activity, buildAuthorizeUri(authorizeUrl, serviceName, parameters, scope), serviceName);
     }
 
     /**
@@ -178,7 +190,7 @@ public class WebIdentityProvider implements IdentityProvider {
      * @param activity from where to start the authentication and where the results should be sent
      */
     public void start(Activity activity) {
-        final Uri uri = buildAuthorizeUri(authorizeUrl, null, parameters);
+        final Uri uri = buildAuthorizeUri(authorizeUrl, null, parameters, null);
         startAuthorization(activity, uri, null);
     }
 
@@ -228,14 +240,18 @@ public class WebIdentityProvider implements IdentityProvider {
         }
     }
 
-    private Uri buildAuthorizeUri(String url, String serviceName, Map<String, Object> parameters) {
+    private Uri buildAuthorizeUri(String url, String serviceName, Map<String, Object> parameters, String scope) {
         final Uri authorizeUri = Uri.parse(url);
         String redirectUri = String.format(REDIRECT_URI_FORMAT, clientId.toLowerCase(), authorizeUri.getHost());
         final Map<String, String> queryParameters = new HashMap<>();
         if (clientInfo != null) {
             queryParameters.put(AUTH0_CLIENT_KEY, clientInfo);
         }
-        queryParameters.put(SCOPE_KEY, SCOPE_OPENID);
+        if (scope == null) {
+            queryParameters.put(SCOPE_KEY, SCOPE_OPENID);
+        } else {
+            queryParameters.put(SCOPE_KEY, scope);
+        }
         queryParameters.put(RESPONSE_TYPE_KEY, TYPE_TOKEN);
 
         if (shouldUsePKCE()) {
